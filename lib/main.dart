@@ -6,14 +6,17 @@ const kBlue = Color(0xFF1565C0); // Azul principal
 
 import 'package:provider/provider.dart';
 import 'package:calculadora_ventas_leche_v2/providers/product_provider.dart';
+import 'package:calculadora_ventas_leche_v2/providers/sales_provider.dart';
 import 'package:calculadora_ventas_leche_v2/screens/admin/product_management.dart';
 import 'package:calculadora_ventas_leche_v2/screens/admin/restock_screen.dart';
+import 'package:calculadora_ventas_leche_v2/screens/sales/sales_screen.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => SalesProvider()),
       ],
       child: const MyApp(),
     ),
@@ -33,7 +36,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       routes: {
-        '/sales': (context) => const SalesCalculator(),
+        '/sales': (context) => const SalesScreen(),
         '/admin_login': (context) => const AdminLoginScreen(),
         '/admin_home': (context) => const AdminHomeScreen(),
         '/admin_products': (context) => const ProductManagementScreen(),
@@ -59,7 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const SalesCalculator()),
+          MaterialPageRoute(builder: (context) => const SalesScreen()),
         );
       }
     });
