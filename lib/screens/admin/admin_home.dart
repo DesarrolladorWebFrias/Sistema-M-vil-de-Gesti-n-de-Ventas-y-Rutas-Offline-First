@@ -27,8 +27,7 @@ class AdminHomeScreen extends StatelessWidget {
             title: "Gestionar Productos",
             subtitle: "Crear, editar precios e imágenes",
             onTap: () {
-              // Navigator.pushNamed(context, '/admin_products');
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente: ABM Productos")));
+              Navigator.pushNamed(context, '/admin_products');
             },
           ),
           _AdminMenuCard(

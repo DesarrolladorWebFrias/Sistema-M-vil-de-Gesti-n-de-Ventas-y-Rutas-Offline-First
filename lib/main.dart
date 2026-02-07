@@ -4,8 +4,19 @@ import 'package:calculadora_ventas_leche_v2/screens/admin/admin_home.dart';
 
 const kBlue = Color(0xFF1565C0); // Azul principal
 
+import 'package:provider/provider.dart';
+import 'package:calculadora_ventas_leche_v2/providers/product_provider.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/product_management.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +35,7 @@ class MyApp extends StatelessWidget {
         '/sales': (context) => const SalesCalculator(),
         '/admin_login': (context) => const AdminLoginScreen(),
         '/admin_home': (context) => const AdminHomeScreen(),
+        '/admin_products': (context) => const ProductManagementScreen(),
       },
     );
   }
