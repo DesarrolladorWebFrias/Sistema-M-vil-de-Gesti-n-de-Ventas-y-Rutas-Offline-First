@@ -7,6 +7,7 @@ const kBlue = Color(0xFF1565C0); // Azul principal
 import 'package:provider/provider.dart';
 import 'package:calculadora_ventas_leche_v2/providers/product_provider.dart';
 import 'package:calculadora_ventas_leche_v2/screens/admin/product_management.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/restock_screen.dart';
 
 void main() {
   runApp(
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/admin_login': (context) => const AdminLoginScreen(),
         '/admin_home': (context) => const AdminHomeScreen(),
         '/admin_products': (context) => const ProductManagementScreen(),
+        '/admin_restock': (context) => const RestockScreen(),
       },
     );
   }

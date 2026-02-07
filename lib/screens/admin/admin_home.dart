@@ -35,8 +35,7 @@ class AdminHomeScreen extends StatelessWidget {
             title: "Reabastecimiento en Ruta",
             subtitle: "Ingresar stock de Cajas/Piezas",
             onTap: () {
-              // Navigator.pushNamed(context, '/admin_restock');
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente: Reabastecimiento")));
+               Navigator.pushNamed(context, '/admin_restock');
             },
           ),
           _AdminMenuCard(
