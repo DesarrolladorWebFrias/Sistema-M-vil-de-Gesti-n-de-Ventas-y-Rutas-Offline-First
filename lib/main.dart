@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/admin_login.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/admin_home.dart';
 
 const kBlue = Color(0xFF1565C0); // Azul principal
 
@@ -18,6 +20,11 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Roboto',
       ),
       home: const SplashScreen(),
+      routes: {
+        '/sales': (context) => const SalesCalculator(),
+        '/admin_login': (context) => const AdminLoginScreen(),
+        '/admin_home': (context) => const AdminHomeScreen(),
+      },
     );
   }
 }
@@ -435,6 +442,13 @@ class _SalesCalculatorState extends State<SalesCalculator> {
             icon: const Icon(Icons.delete_sweep, color: Colors.white),
             onPressed: _vaciarRegistros,
             tooltip: "Vaciar todos los registros",
+          ),
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
+            onPressed: () {
+              Navigator.pushNamed(context, '/admin_login');
+            },
+            tooltip: "Administración",
           ),
         ],
       ),
