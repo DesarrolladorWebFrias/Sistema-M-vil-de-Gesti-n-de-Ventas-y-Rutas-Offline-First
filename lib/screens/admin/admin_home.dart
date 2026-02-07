@@ -43,8 +43,7 @@ class AdminHomeScreen extends StatelessWidget {
             title: "Reportes y Cierre",
             subtitle: "Ver ventas, arqueos y exportar",
             onTap: () {
-               // Navigator.pushNamed(context, '/admin_reports');
-               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente: Reportes")));
+               Navigator.pushNamed(context, '/admin_reports');
             },
           ),
         ],

@@ -10,6 +10,7 @@ import 'package:calculadora_ventas_leche_v2/providers/sales_provider.dart';
 import 'package:calculadora_ventas_leche_v2/screens/admin/product_management.dart';
 import 'package:calculadora_ventas_leche_v2/screens/admin/restock_screen.dart';
 import 'package:calculadora_ventas_leche_v2/screens/sales/sales_screen.dart';
+import 'package:calculadora_ventas_leche_v2/screens/reports/close_day_screen.dart';
 
 void main() {
   runApp(
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/admin_home': (context) => const AdminHomeScreen(),
         '/admin_products': (context) => const ProductManagementScreen(),
         '/admin_restock': (context) => const RestockScreen(),
+        '/admin_reports': (context) => const CloseDayScreen(),
       },
     );
   }
