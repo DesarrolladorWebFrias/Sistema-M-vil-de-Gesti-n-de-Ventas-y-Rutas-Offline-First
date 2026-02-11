@@ -6,7 +6,7 @@ import '../../data/models/producto.dart';
 import '../../providers/product_provider.dart';
 
 class ProductManagementScreen extends StatefulWidget {
-  const ProductManagementScreen({Key? key}) : super(key: key);
+  const ProductManagementScreen({super.key});
 
   @override
   State<ProductManagementScreen> createState() => _ProductManagementScreenState();
@@ -98,7 +98,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
 class _ProductDialog extends StatefulWidget {
   final Producto? product;
 
-  const _ProductDialog({Key? key, this.product}) : super(key: key);
+  const _ProductDialog({this.product});
 
   @override
   State<_ProductDialog> createState() => _ProductDialogState();
@@ -109,6 +109,7 @@ class _ProductDialogState extends State<_ProductDialog> {
   late TextEditingController _nameController;
   late TextEditingController _priceController;
   late TextEditingController _costController;
+  late TextEditingController _piezasPorCajaController;
   String? _imagePath;
 
   @override
@@ -117,6 +118,7 @@ class _ProductDialogState extends State<_ProductDialog> {
     _nameController = TextEditingController(text: widget.product?.nombre ?? '');
     _priceController = TextEditingController(text: widget.product?.precio.toString() ?? '');
     _costController = TextEditingController(text: widget.product?.costo.toString() ?? '');
+    _piezasPorCajaController = TextEditingController(text: widget.product?.piezasPorCaja.toString() ?? '12'); // Default 12
     _imagePath = widget.product?.imagenPath;
   }
 
@@ -134,6 +136,7 @@ class _ProductDialogState extends State<_ProductDialog> {
       final name = _nameController.text;
       final price = double.tryParse(_priceController.text) ?? 0.0;
       final cost = double.tryParse(_costController.text) ?? 0.0;
+      final piezasCaja = int.tryParse(_piezasPorCajaController.text) ?? 12;
 
       final newProduct = Producto(
         id: widget.product?.id,
@@ -143,6 +146,7 @@ class _ProductDialogState extends State<_ProductDialog> {
         imagenPath: _imagePath,
         stockCajas: widget.product?.stockCajas ?? 0,
         stockPiezas: widget.product?.stockPiezas ?? 0,
+        piezasPorCaja: piezasCaja, // Guardar valor
       );
 
       final provider = Provider.of<ProductProvider>(context, listen: false);
@@ -165,7 +169,8 @@ class _ProductDialogState extends State<_ProductDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              GestureDetector(
+               // ... Image Picker (omitted for brevity in replacement if possible, but easier to include entire MainAxisSize.min block if contiguous)
+               GestureDetector(
                 onTap: () {
                   showModalBottomSheet(
                     context: context,
@@ -227,6 +232,17 @@ class _ProductDialogState extends State<_ProductDialog> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _piezasPorCajaController,
+                decoration: const InputDecoration(
+                  labelText: "Piezas por Caja",
+                  helperText: "Ej: 12 para litros, 27 para lechitas",
+                  border: OutlineInputBorder()
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) => value!.isEmpty ? "Requerido" : null,
               ),
             ],
           ),

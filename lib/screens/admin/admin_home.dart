@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AdminHomeScreen extends StatelessWidget {
-  const AdminHomeScreen({Key? key}) : super(key: key);
+  const AdminHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +23,21 @@ class AdminHomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           _AdminMenuCard(
-            icon: Icons.inventory_2,
-            title: "Gestionar Productos",
-            subtitle: "Crear, editar precios e imágenes",
+            icon: Icons.inventory,
+            title: "Gestión de Productos",
+            subtitle: "Altas, bajas y modificación de precios",
             onTap: () {
-              Navigator.pushNamed(context, '/admin_products');
+              Navigator.pushNamed(context, '/product_management');
+            },
+          ),
+          const SizedBox(height: 16),
+          // Nuevo Modulo Respaldo
+           _AdminMenuCard(
+            icon: Icons.settings_backup_restore,
+            title: "Respaldo y Datos",
+            subtitle: "Exportar DB, Importar y Vaciar Datos",
+            onTap: () {
+              Navigator.pushNamed(context, '/backup');
             },
           ),
           _AdminMenuCard(
@@ -38,14 +48,7 @@ class AdminHomeScreen extends StatelessWidget {
                Navigator.pushNamed(context, '/admin_restock');
             },
           ),
-          _AdminMenuCard(
-            icon: Icons.bar_chart,
-            title: "Reportes y Cierre",
-            subtitle: "Ver ventas, arqueos y exportar",
-            onTap: () {
-               Navigator.pushNamed(context, '/admin_reports');
-            },
-          ),
+
         ],
       ),
     );

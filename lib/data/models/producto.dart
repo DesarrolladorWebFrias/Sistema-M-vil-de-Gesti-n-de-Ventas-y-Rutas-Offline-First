@@ -1,8 +1,12 @@
 class Producto {
   int? id;
   String nombre;
-  double precio;
-  double costo;
+  
+  // IMPORTANTE: precio y costo están en la unidad base: PIEZA
+  // Si se vende por CAJA, multiplicar por piezasPorCaja
+  double precio;  // Precio de venta por PIEZA
+  double costo;   // Costo por PIEZA
+  
   String? imagenPath;
   int stockCajas;
   int stockPiezas;
@@ -40,16 +44,16 @@ class Producto {
 
   factory Producto.fromMap(Map<String, dynamic> map) {
     return Producto(
-      id: map['id'],
-      nombre: map['nombre'],
-      precio: map['precio'],
-      costo: map['costo'],
-      imagenPath: map['imagen_path'],
-      stockCajas: map['stock_cajas'],
-      stockPiezas: map['stock_piezas'],
-      piezasPorCaja: map['piezas_por_caja'],
-      colorHex: map['color_hex'],
-      ordenCarrusel: map['orden_carrusel'],
+      id: map['id'] as int?,
+      nombre: map['nombre'] as String,
+      precio: (map['precio'] as num).toDouble(),
+      costo: (map['costo'] as num).toDouble(),
+      imagenPath: map['imagen_path'] as String?,
+      stockCajas: map['stock_cajas'] as int? ?? 0,
+      stockPiezas: map['stock_piezas'] as int? ?? 0,
+      piezasPorCaja: map['piezas_por_caja'] as int? ?? 12,
+      colorHex: map['color_hex'] as int?,
+      ordenCarrusel: map['orden_carrusel'] as int? ?? 0,
     );
   }
 }

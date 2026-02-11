@@ -1,13 +1,15 @@
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../data/local/db_helper.dart';
 import '../../data/models/cierre_caja.dart';
 import '../../data/models/venta.dart';
 import '../../utils/report_generator.dart';
-import '../../providers/sales_provider.dart'; // Solo para tener acceso si fuera necesario, aunque DB es mejor aquí
+
+import 'package:provider/provider.dart'; // Added import
+import '../../providers/salida_provider.dart'; // Added import
 
 class CloseDayScreen extends StatefulWidget {
-  const CloseDayScreen({Key? key}) : super(key: key);
+  const CloseDayScreen({super.key});
 
   @override
   State<CloseDayScreen> createState() => _CloseDayScreenState();
@@ -15,6 +17,7 @@ class CloseDayScreen extends StatefulWidget {
 
 class _CloseDayScreenState extends State<CloseDayScreen> {
   final _fondoInicialController = TextEditingController(text: '0.00');
+  int? _selectedSalidaId; // State for filter
   
   // Controladores para Billetes
   final Map<int, TextEditingController> _billetesControl = {
@@ -41,6 +44,9 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+       Provider.of<SalidaProvider>(context, listen: false).loadSalidas();
+    });
     _cargarDatosSistema();
   }
 
@@ -50,10 +56,19 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day).toIso8601String();
     
+    // Construir query dinámica
+    String whereClause = 'fecha_hora >= ?';
+    List<dynamic> whereArgs = [startOfDay];
+
+    if (_selectedSalidaId != null) {
+      whereClause += ' AND id_salida = ?';
+      whereArgs.add(_selectedSalidaId);
+    }
+
     final res = await db.query(
       'ventas',
-      where: 'fecha_hora >= ?',
-      whereArgs: [startOfDay]
+      where: whereClause,
+      whereArgs: whereArgs
     );
 
     double total = 0.0;
@@ -73,6 +88,13 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
     }
   }
 
+  double _calcularDiferencia() {
+    double efectivoTotal = _calcularTotalEfectivo();
+    double fondo = double.tryParse(_fondoInicialController.text) ?? 0.0;
+    double ventasSegunArqueo = efectivoTotal - fondo;
+    return ventasSegunArqueo - _ventasSistema;
+  }
+
   double _calcularTotalEfectivo() {
     double total = 0.0;
     _billetesControl.forEach((denom, ctrl) {
@@ -87,15 +109,21 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
   Future<void> _generarCierre() async {
     double fondo = double.tryParse(_fondoInicialController.text) ?? 0.0;
     double efectivoContado = _calcularTotalEfectivo();
+    double diferencia = _calcularDiferencia();
     
-    // Formula básica: (Lo que hay en caja) - (Fondo Inicial) = (Lo que se vendió según el cajero)
-    // Diferencia = (Lo que se vendió según cajero) - (Lo que dice el sistema)
+    // Calcular Ganancia Real desde la base de datos
+    final db = await DatabaseHelper().database;
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day).toIso8601String();
     
-    double ventasSegunArqueo = efectivoContado - fondo;
-    double diferencia = ventasSegunArqueo - _ventasSistema;
+    final gananciaRes = await db.rawQuery('''
+      SELECT COALESCE(SUM(dv.ganancia), 0.0) as total_ganancia 
+      FROM detalle_ventas dv
+      INNER JOIN ventas v ON dv.id_venta = v.id
+      WHERE v.fecha_hora >= ?
+    ''', [startOfDay]);
     
-    // Ganancia Real (Simplificado: Ventas Sistema - Costos) -> DB query needed properly
-    // Por ahora usaremos _ventasSistema como proxy de ingreso bruto
+    double gananciaReal = ((gananciaRes.first['total_ganancia'] ?? 0) as num).toDouble();
     
     final cierre = CierreCaja(
       fechaHora: DateTime.now(),
@@ -103,34 +131,70 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
       ventasSistema: _ventasSistema,
       dineroContado: efectivoContado,
       diferencia: diferencia,
-      gananciaRealDia: 0.0, // Pendiente calcular ganancia real desde costos
+      gananciaRealDia: gananciaReal, // Ganancia real calculada desde BD
       detallesBilletes: {
         ..._billetesControl.map((k, v) => MapEntry(k.toString(), int.tryParse(v.text) ?? 0)),
         ..._monedasControl.map((k, v) => MapEntry(k.toString(), int.tryParse(v.text) ?? 0)),
       }
     );
 
-    // Guardar en BD (Opcional, si queremos historial)
-    final db = await DatabaseHelper().database;
+    // Guardar en BD
     await db.insert('cierres_caja', cierre.toMap());
 
+    // Obtener información de Ruta para el reporte
+    String? nombreRuta;
+    if (_selectedSalidaId != null) {
+      final salidaProvider = Provider.of<SalidaProvider>(context, listen: false);
+      try {
+        final salida = salidaProvider.salidas.firstWhere((s) => s.id == _selectedSalidaId);
+        nombreRuta = "${salida.nombreRuta} (${salida.vendedor})";
+      } catch (_) {}
+    }
+
     // Generar PDF
-    await ReportGenerator.generateAndSharePdf(cierre, _ventasDelDia);
+    await ReportGenerator.generateAndSharePdf(cierre, _ventasDelDia, nombreRuta: nombreRuta);
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    
+    final salidaProvider = Provider.of<SalidaProvider>(context); // Consume provider
 
     double efectivoTotal = _calcularTotalEfectivo();
-    double diferencia = (efectivoTotal - (double.tryParse(_fondoInicialController.text) ?? 0)) - _ventasSistema;
+    double diferencia = _calcularDiferencia();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Cierre de Caja"), backgroundColor: Colors.blueGrey),
+      appBar: AppBar(title: const Text("Reporte Financiero / Arqueo"), backgroundColor: Colors.blueGrey),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Filtro de Ruta
+            DropdownButtonFormField<int>(
+              decoration: const InputDecoration(
+                labelText: "Filtrar por Ruta / Salida",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.filter_list),
+              ),
+              value: _selectedSalidaId,
+              items: [
+                const DropdownMenuItem<int>(value: null, child: Text("TODAS (General)")),
+                ...salidaProvider.salidas.map((s) => DropdownMenuItem(
+                  value: s.id, 
+                  child: Text("${s.nombreRuta} - ${s.fechaHora.day}/${s.fechaHora.month}")
+                )),
+              ],
+              onChanged: (val) {
+                setState(() {
+                  _selectedSalidaId = val;
+                  _isLoading = true;
+                });
+                _cargarDatosSistema();
+              },
+            ),
+            const SizedBox(height: 16),
+
             // Resumen Sistema
             Card(
               color: Colors.blue[50],

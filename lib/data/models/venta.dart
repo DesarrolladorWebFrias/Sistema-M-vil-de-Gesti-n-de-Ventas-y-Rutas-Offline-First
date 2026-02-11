@@ -3,6 +3,7 @@ class Venta {
   DateTime fechaHora;
   double total;
   String metodoPago;
+  int? idSalida; // Vinculación con salida
   List<DetalleVenta>? detalles;
 
   Venta({
@@ -10,6 +11,7 @@ class Venta {
     required this.fechaHora,
     required this.total,
     this.metodoPago = 'EFECTIVO',
+    this.idSalida,
     this.detalles,
   });
 
@@ -19,15 +21,17 @@ class Venta {
       'fecha_hora': fechaHora.toIso8601String(),
       'total': total,
       'metodo_pago': metodoPago,
+      'id_salida': idSalida,
     };
   }
 
   factory Venta.fromMap(Map<String, dynamic> map) {
     return Venta(
-      id: map['id'],
-      fechaHora: DateTime.parse(map['fecha_hora']),
-      total: map['total'],
-      metodoPago: map['metodo_pago'],
+      id: map['id'] as int?,
+      fechaHora: DateTime.parse(map['fecha_hora'] as String),
+      total: (map['total'] as num).toDouble(),
+      metodoPago: map['metodo_pago'] as String? ?? 'EFECTIVO',
+      idSalida: map['id_salida'] as int?,
     );
   }
 }
@@ -68,14 +72,14 @@ class DetalleVenta {
 
   factory DetalleVenta.fromMap(Map<String, dynamic> map) {
     return DetalleVenta(
-      id: map['id'],
-      idVenta: map['id_venta'],
-      idProducto: map['id_producto'],
-      cantidad: map['cantidad'],
-      unidad: map['unidad'],
-      precioUnitario: map['precio_unitario'],
-      costoUnitario: map['costo_unitario'],
-      ganancia: map['ganancia'],
+      id: map['id'] as int?,
+      idVenta: map['id_venta'] as int?,
+      idProducto: map['id_producto'] as int,
+      cantidad: map['cantidad'] as int,
+      unidad: map['unidad'] as String,
+      precioUnitario: (map['precio_unitario'] as num).toDouble(),
+      costoUnitario: (map['costo_unitario'] as num).toDouble(),
+      ganancia: (map['ganancia'] as num).toDouble(),
     );
   }
 }

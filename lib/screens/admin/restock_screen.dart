@@ -6,7 +6,7 @@ import '../../data/local/db_helper.dart';
 import '../../providers/product_provider.dart';
 
 class RestockScreen extends StatefulWidget {
-  const RestockScreen({Key? key}) : super(key: key);
+  const RestockScreen({super.key});
 
   @override
   State<RestockScreen> createState() => _RestockScreenState();
@@ -72,18 +72,21 @@ class _RestockScreenState extends State<RestockScreen> {
       // 3. Recargar Productos en Provider
       if (mounted) {
         await Provider.of<ProductProvider>(context, listen: false).loadProducts();
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Inventario actualizado correctamente"), backgroundColor: Colors.green),
-        );
-        
-        // Limpiar campos
-        _cajasController.text = '0';
-        _piezasController.text = '0';
-        _notasController.clear();
-        setState(() => _selectedProduct = null);
       }
+      
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Inventario actualizado correctamente"), backgroundColor: Colors.green),
+      );
+      
+      // Limpiar campos
+      _cajasController.text = '0';
+      _piezasController.text = '0';
+      _notasController.clear();
+      setState(() => _selectedProduct = null);
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -105,7 +108,7 @@ class _RestockScreenState extends State<RestockScreen> {
           children: [
             // Selector de Producto
             DropdownButtonFormField<Producto>(
-              value: _selectedProduct,
+              initialValue: _selectedProduct,
               decoration: const InputDecoration(
                 labelText: "Seleccionar Producto",
                 border: OutlineInputBorder(),
@@ -128,7 +131,7 @@ class _RestockScreenState extends State<RestockScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey.withOpacity(0.1),
+                  color: Colors.blueGrey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
