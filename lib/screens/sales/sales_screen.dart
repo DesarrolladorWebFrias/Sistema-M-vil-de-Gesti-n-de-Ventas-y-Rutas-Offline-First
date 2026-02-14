@@ -144,144 +144,153 @@ class _SalesScreenState extends State<SalesScreen> {
       ),
       body: Column(
         children: [
-          // 1. Selector de Salida (Ruta) y Totales
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: Colors.white,
-            child: Column(
-              children: [
-                Consumer<SalidaProvider>(
-                  builder: (context, salidaProvider, child) {
-                    return DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        labelText: "📍 Seleccionar Ruta / Salida",
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                        prefixIcon: Icon(Icons.local_shipping),
-                      ),
-                      value: _selectedSalidaId,
-                      hint: const Text("Venta General (Stock Almacén)"),
-                      items: [
-                        const DropdownMenuItem<int>(
-                          value: null,
-                          child: Text("🏭 Almacén General"),
-                        ),
-                        ...salidaProvider.salidasActivas.map((salida) {
-                          return DropdownMenuItem(
-                            value: salida.id,
-                            child: Text(
-                              "${salida.tipo == 'RUTA' ? '🗺️' : '📦'} ${salida.nombreRuta}",
-                              overflow: TextOverflow.ellipsis,
+          // 4. Contenido Desplazable (Selectores, Carrusel, Lista)
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // 1. Selector de Salida con diseño mejorado
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+                    ),
+                    child: Consumer<SalidaProvider>(
+                      builder: (context, salidaProvider, child) {
+                        return DropdownButtonFormField<int>(
+                          decoration: const InputDecoration(
+                            labelText: "📍 Ruta / Salida",
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                            prefixIcon: Icon(Icons.local_shipping, size: 20),
+                          ),
+                          value: _selectedSalidaId,
+                          hint: const Text("Venta General (Stock Almacén)"),
+                          items: [
+                            const DropdownMenuItem<int>(
+                              value: null,
+                              child: Text("🏭 Almacén General"),
                             ),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
-                         setState(() {
-                           _selectedSalidaId = value;
-                         });
-                         // Recargar productos con stock de la ruta seleccionada
-                         Provider.of<ProductProvider>(context, listen: false)
-                             .loadProducts(idSalida: value);
+                            ...salidaProvider.salidasActivas.map((salida) {
+                              return DropdownMenuItem(
+                                value: salida.id,
+                                child: Text(
+                                  "${salida.tipo == 'RUTA' ? '🗺️' : '📦'} ${salida.nombreRuta}",
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                             setState(() {
+                               _selectedSalidaId = value;
+                             });
+                             Provider.of<ProductProvider>(context, listen: false)
+                                 .loadProducts(idSalida: value);
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
-              ],
+                    ),
+                  ),
+                  
+                  // 2. Selector de Unidad y Cantidad
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    color: Colors.grey[200],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ToggleButtons(
+                          isSelected: [_unidadSeleccionada == 'PIEZA', _unidadSeleccionada == 'CAJA'],
+                          onPressed: (int index) {
+                            setState(() {
+                              _unidadSeleccionada = index == 0 ? 'PIEZA' : 'CAJA';
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          selectedColor: Colors.white,
+                          fillColor: Colors.blue[800],
+                          children: const [
+                            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("PIEZA")),
+                            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("CAJA")),
+                          ],
+                        ),
+                        const SizedBox(width: 20),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle_outline),
+                              onPressed: () {
+                                if (_cantidad > 1) setState(() => _cantidad--);
+                              },
+                            ),
+                            Text("$_cantidad", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle_outline),
+                              onPressed: () {
+                                setState(() => _cantidad++);
+                              },
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+
+                  // 3. Carrusel de Productos
+                  SizedBox(
+                    height: 300, // Altura restaurada
+                    child: productProvider.isLoading 
+                      ? const Center(child: CircularProgressIndicator())
+                      : ProductCarousel(
+                          products: productProvider.products,
+                          onProductSelected: (producto) => _agregarProducto(producto),
+                        ),
+                  ),
+
+                  const Divider(thickness: 2),
+
+                  // 4. Lista de Carrito (Sin scroll interno, se expande)
+                  salesProvider.cart.isEmpty
+                      ? Container(
+                          height: 100,
+                          alignment: Alignment.center,
+                          child: const Text("Carrito Vacío - Seleccione Productos", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true, // Se ajusta al contenido
+                          physics: const NeverScrollableScrollPhysics(), // Scroll manejado por el padre
+                          reverse: false, // El último insertado (index 0) arriba
+                          itemCount: salesProvider.cart.length,
+                          itemBuilder: (context, index) {
+                            final item = salesProvider.cart[index];
+                            final producto = productProvider.products.firstWhere((p) => p.id == item.idProducto, orElse: () => Producto(nombre: "Desconocido", precio: 0, costo: 0));
+                            String iconoUnidad = item.unidad == 'CAJA' ? '📦' : '🧊';
+                            
+                            return ListTile(
+                              title: Text("${producto.nombre} (${item.cantidad} $iconoUnidad ${item.unidad}${item.cantidad > 1 ? 'S' : ''})"),
+                              subtitle: Text("\$${item.precioUnitario.toStringAsFixed(2)} c/u"),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text("\$${(item.precioUnitario * item.cantidad).toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => salesProvider.removeFromCart(index),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                  const SizedBox(height: 20), // Espacio final
+                ],
+              ),
             ),
           ),
           
-          // 2. Selector de Unidad y Cantidad
-          Container(
-            padding: const EdgeInsets.all(12),
-            color: Colors.grey[200],
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ToggleButtons(
-                  isSelected: [_unidadSeleccionada == 'PIEZA', _unidadSeleccionada == 'CAJA'],
-                  onPressed: (int index) {
-                    setState(() {
-                      _unidadSeleccionada = index == 0 ? 'PIEZA' : 'CAJA';
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(10),
-                  selectedColor: Colors.white,
-                  fillColor: Colors.blue[800],
-                  children: const [
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("PIEZA")),
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("CAJA")),
-                  ],
-                ),
-                const SizedBox(width: 20),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline),
-                      onPressed: () {
-                        if (_cantidad > 1) setState(() => _cantidad--);
-                      },
-                    ),
-                    Text("$_cantidad", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline),
-                      onPressed: () {
-                        setState(() => _cantidad++);
-                      },
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-
-          // 2. Carrusel de Productos
-          SizedBox(
-            height: 300,
-            child: productProvider.isLoading 
-              ? const Center(child: CircularProgressIndicator())
-              : ProductCarousel(
-                  products: productProvider.products,
-                  onProductSelected: (producto) => _agregarProducto(producto),
-                ),
-          ),
-
-          const Divider(thickness: 2),
-
-          // 3. Carrito de Compras
-          Expanded(
-            child: salesProvider.cart.isEmpty
-                ? const Center(child: Text("Carrito Vacío - Seleccione Productos", style: TextStyle(fontSize: 16, color: Colors.grey)))
-                : ListView.builder(
-                    itemCount: salesProvider.cart.length,
-                    itemBuilder: (context, index) {
-                      final item = salesProvider.cart[index];
-                      // Necesitamos el nombre del producto, pero en el carrito solo tenemos el ID.
-                      // Buscamos en el productProvider (ineficiente para listas largas, pero ok para POS pequeño)
-                      final producto = productProvider.products.firstWhere((p) => p.id == item.idProducto, orElse: () => Producto(nombre: "Desconocido", precio: 0, costo: 0));
-                      
-                      // Icono según unidad
-                      String iconoUnidad = item.unidad == 'CAJA' ? '📦' : '🧊';
-                      
-                      return ListTile(
-                        title: Text("${producto.nombre} (${item.cantidad} $iconoUnidad ${item.unidad}${item.cantidad > 1 ? 'S' : ''})"),
-                        subtitle: Text("\$${item.precioUnitario.toStringAsFixed(2)} c/u"),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text("\$${(item.precioUnitario * item.cantidad).toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => salesProvider.removeFromCart(index),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-          ),
-
-          // 4. Total y Botón de Cobrar
+          // 5. Total y Botón de Cobrar (Fijo abajo)
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(

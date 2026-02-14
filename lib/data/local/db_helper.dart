@@ -28,7 +28,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'lactopos_pro.db');
     final db = await openDatabase(
       path,
-      version: 2, // Incrementada la versión para migración
+      version: 4, // Incrementada a 4 para LIMPIEZA TOTAL y recarga de 11 productos
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -152,102 +152,140 @@ class DatabaseHelper {
         ALTER TABLE ventas ADD COLUMN id_salida INTEGER
       ''');
     }
+
+    if (oldVersion < 4) {
+      // Migración a versión 4: LIMPIEZA TOTAL y recarga
+      await _insertarDatosIniciales(db);
+    }
   }
 
   Future<void> _insertarDatosIniciales(Database db) async {
-    // Insertar o actualizar 10 productos lácteos predefinidos
-    // Insertar o actualizar 10 productos lácteos predefinidos
+    // ---------------------------------------------------------------------------
+    // TEMPLATE PARA PRODUCTOS POR DEFECTO
+    // Edite esta lista con sus propios productos e imágenes.
+    // Asegúrese de colocar las imágenes en la carpeta 'assets/images/' y registrarlas en pubspec.yaml
+    // ---------------------------------------------------------------------------
+    
+    // LIMPIEZA TOTAL: Eliminar todos los productos existentes para dejar solo los 11 oficiales
+    await db.delete('productos');
+
     final productosIniciales = [
       {
-        'nombre': 'Leche Entera 1L',
-        'precio': 12.50,
-        'costo': 8.00,
-        'stock_cajas': 10,
-        'stock_piezas': 8,
+        'nombre': 'LECHE ENTERA',
+        'precio': 23.00,
+        'costo': 22.50,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
         'piezas_por_caja': 12,
         'orden_carrusel': 1,
+        'imagen_path': 'assets/images/leche-entera.png', // CAMBIE ESTO por su imagen real
       },
       {
-        'nombre': 'Lechitas Saborizadas (Fresa/Choc)',
-        'precio': 5.00,
-        'costo': 3.50,
-        'stock_cajas': 20,
+        'nombre': 'LECHE DESLACTOSADA',
+        'precio': 22.00,
+        'costo': 22.00,
+        'stock_cajas': 0,
         'stock_piezas': 0,
-        'piezas_por_caja': 27, // CORREGIDO: 27 piezas por caja
+        'piezas_por_caja': 12, 
         'orden_carrusel': 2,
+        'imagen_path': 'assets/images/leche-deslactosada.png',
       },
       {
-        'nombre': 'Leche en Polvo 400g',
-        'precio': 45.00,
-        'costo': 35.00,
-        'stock_cajas': 5,
-        'stock_piezas': 2,
+        'nombre': 'LECHE SEMIDESCREMADA',
+        'precio': 22.00,
+        'costo': 21.50,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
         'piezas_por_caja': 12, 
         'orden_carrusel': 3,
+        'imagen_path': 'assets/images/semidescremada-liquida.png',
       },
        {
-        'nombre': 'Leche en Polvo (Caja Grande)',
-        'precio': 120.00,
-        'costo': 90.00,
-        'stock_cajas': 5,
+        'nombre': 'LECHE LIGH',
+        'precio': 21.00,
+        'costo': 20.50,
+        'stock_cajas': 0,
         'stock_piezas': 0,
-        'piezas_por_caja': 36, // CORREGIDO: 36 piezas
+        'piezas_por_caja': 12,
         'orden_carrusel': 4,
+        'imagen_path': 'assets/images/leche-ligh.png',
       },
       {
-        'nombre': 'Crema Ácida 500ml',
-        'precio': 22.00,
-        'costo': 15.00,
-        'stock_cajas': 5,
-        'stock_piezas': 4,
-        'piezas_por_caja': 12,
+        'nombre': 'LECHITA DE FRESA',
+        'precio': 7.00,
+        'costo': 6.50,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
+        'piezas_por_caja': 27,
         'orden_carrusel': 5,
+        'imagen_path': 'assets/images/lechitas-fresas.png',
       },
       {
-        'nombre': 'Queso Fresco 500g',
-        'precio': 35.00,
-        'costo': 25.00,
-        'stock_cajas': 4,
-        'stock_piezas': 8,
-        'piezas_por_caja': 12,
+        'nombre': 'LECHITA DE VAINILLA',
+        'precio': 7.00,
+        'costo': 6.50,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
+        'piezas_por_caja': 27,
         'orden_carrusel': 6,
+        'imagen_path': 'assets/images/lechitas-vainillas.png',
       },
       {
-        'nombre': 'Mantequilla 250g',
-        'precio': 28.00,
-        'costo': 20.00,
-        'stock_cajas': 7,
-        'stock_piezas': 5,
-        'piezas_por_caja': 24, // Asumimos 24 para mantequilla
+        'nombre': 'LECHITA DE CHOCOLATE',
+        'precio': 7.00,
+        'costo': 6.50,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
+        'piezas_por_caja': 27,
         'orden_carrusel': 7,
+        'imagen_path': 'assets/images/lechitas-chocolates.png',
+      },
+      {
+        'nombre': 'LECHITA NATURAL',
+        'precio': 6.00,
+        'costo': 5.50,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
+        'piezas_por_caja': 27,
+        'orden_carrusel': 8,
+        'imagen_path': 'assets/images/lechita-natural.png',
+      },
+      {
+        'nombre': 'LECHE ENTERA EN POLVO',
+        'precio': 36.00,
+        'costo': 35.50,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
+        'piezas_por_caja': 36,
+        'orden_carrusel': 9,
+        'imagen_path': 'assets/images/entera-polvo.png',
+      },
+       {
+        'nombre': 'LECHE SEMIDESCREMADA EN POLVO',
+        'precio': 32.00,
+        'costo': 32.00,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
+        'piezas_por_caja': 36,
+        'orden_carrusel': 10,
+        'imagen_path': 'assets/images/semi-polvo.png',
+      },
+       {
+        'nombre': 'LECHE SUBSIDIADA EN POLVO',
+        'precio': 15.00,
+        'costo': 15.00,
+        'stock_cajas': 0,
+        'stock_piezas': 0,
+        'piezas_por_caja': 36,
+        'orden_carrusel': 11,
+        'imagen_path': 'assets/images/leche_polvo_subsidiada.jpg',
       },
       // ... otros
     ];
 
-    // Insertar o actualizar cada producto
+    // Insertar productos oficiales
     for (var producto in productosIniciales) {
-      // Verificar si el producto ya existe por nombre
-      final List<Map<String, dynamic>> existing = await db.query(
-        'productos',
-        where: 'nombre = ?',
-        whereArgs: [producto['nombre']],
-      );
-
-      if (existing.isEmpty) {
-        // Insertar nuevo producto
         await db.insert('productos', producto);
-      } else {
-        // Actualizar producto existente (solo si tiene stock en 0)
-        final existingProduct = existing.first;
-        if (existingProduct['stock_cajas'] == 0 && existingProduct['stock_piezas'] == 0) {
-          await db.update(
-            'productos',
-            producto,
-            where: 'id = ?',
-            whereArgs: [existingProduct['id']],
-          );
-        }
-      }
     }
   }
 }

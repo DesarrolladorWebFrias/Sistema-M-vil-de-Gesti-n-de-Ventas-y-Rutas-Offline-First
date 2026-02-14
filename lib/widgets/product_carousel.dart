@@ -17,7 +17,7 @@ class ProductCarousel extends StatefulWidget {
 }
 
 class _ProductCarouselState extends State<ProductCarousel> {
-  final PageController _pageController = PageController(viewportFraction: 0.4); // Mostrar ~2.5 items
+  final PageController _pageController = PageController(viewportFraction: 0.4); // Restaurado a 0.4
   int _currentPage = 0;
 
   @override
@@ -56,7 +56,7 @@ class _ProductCarouselState extends State<ProductCarousel> {
     }
 
     return SizedBox(
-      height: 280, // Altura aumentada del carrusel
+      height: 300, // Altura restaurada a 300 como pidió el usuario
       child: PageView.builder(
         controller: _pageController,
         pageSnapping: false, // Scroll libre sin "imanes"
@@ -117,10 +117,17 @@ class _ProductCarouselState extends State<ProductCarousel> {
                             child: product.imagenPath != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Image.file(
-                                    File(product.imagenPath!),
-                                    fit: BoxFit.cover,
-                                  ),
+                                  child: product.imagenPath!.startsWith('assets/') 
+                                    ? Image.asset(
+                                        product.imagenPath!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                                      )
+                                    : Image.file(
+                                        File(product.imagenPath!),
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                                      ),
                                 )
                               : const Icon(Icons.local_drink, size: 60, color: Colors.blue),
                           ),

@@ -28,14 +28,14 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
     50: TextEditingController(text: '0'),
     20: TextEditingController(text: '0'),
   };
-  // Controladores para Monedas
-  final Map<int, TextEditingController> _monedasControl = {
-    10: TextEditingController(text: '0'),
-    5: TextEditingController(text: '0'),
-    2: TextEditingController(text: '0'),
-    1: TextEditingController(text: '0'),
+  // Controladores para Monedas (Double para aceptar .50)
+  final Map<double, TextEditingController> _monedasControl = {
+    10.0: TextEditingController(text: '0'),
+    5.0: TextEditingController(text: '0'),
+    2.0: TextEditingController(text: '0'),
+    1.0: TextEditingController(text: '0'),
+    0.50: TextEditingController(text: '0'), // Agregado 50 centavos
   };
-  // Monedas centavos si fuera necesario, pero por ahora lo simplifico a enteros o input manual extra
 
   double _ventasSistema = 0.0;
   List<Venta> _ventasDelDia = [];
@@ -101,6 +101,7 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
       total += denom * (int.tryParse(ctrl.text) ?? 0);
     });
     _monedasControl.forEach((denom, ctrl) {
+      // denom es double (ej 0.50), ctrl.text es cantidad (ej 5 monedas)
       total += denom * (int.tryParse(ctrl.text) ?? 0);
     });
     return total;
@@ -278,7 +279,7 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
     );
   }
 
-  Widget _buildDenomInput(int denom, TextEditingController ctrl, Color color) {
+  Widget _buildDenomInput(num denom, TextEditingController ctrl, Color color) { // Changed int to num
     return Container(
       width: 100,
       padding: const EdgeInsets.all(8),
@@ -289,7 +290,7 @@ class _CloseDayScreenState extends State<CloseDayScreen> {
       ),
       child: Column(
         children: [
-          Text("\$$denom", style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text("\$${denom.toStringAsFixed(denom is int || denom % 1 == 0 ? 0 : 2)}", style: const TextStyle(fontWeight: FontWeight.bold)),
           TextField(
             controller: ctrl,
             keyboardType: TextInputType.number,

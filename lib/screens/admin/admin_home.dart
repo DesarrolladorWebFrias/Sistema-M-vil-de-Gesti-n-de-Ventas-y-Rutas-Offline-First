@@ -27,7 +27,7 @@ class AdminHomeScreen extends StatelessWidget {
             title: "Gestión de Productos",
             subtitle: "Altas, bajas y modificación de precios",
             onTap: () {
-              Navigator.pushNamed(context, '/product_management');
+              Navigator.pushNamed(context, '/admin_products');
             },
           ),
           const SizedBox(height: 16),

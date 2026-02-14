@@ -56,7 +56,7 @@ class SalesProvider with ChangeNotifier {
     double ganancia = (precioUnitario - costoUnitario) * quantity;
 
     // 3. Agregar al carrito
-    _cart.add(DetalleVenta(
+    _cart.insert(0, DetalleVenta(
       idProducto: product.id!,
       cantidad: quantity,
       unidad: unidad,

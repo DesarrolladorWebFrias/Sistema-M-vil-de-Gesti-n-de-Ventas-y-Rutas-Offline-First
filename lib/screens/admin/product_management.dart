@@ -55,7 +55,16 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       child: ListTile(
                         leading: product.imagenPath != null
-                            ? Image.file(File(product.imagenPath!), width: 50, height: 50, fit: BoxFit.cover)
+                            ? SizedBox(
+                                width: 50, 
+                                height: 50, 
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: product.imagenPath!.startsWith('assets/')
+                                    ? Image.asset(product.imagenPath!, fit: BoxFit.cover)
+                                    : Image.file(File(product.imagenPath!), fit: BoxFit.cover),
+                                ),
+                              )
                             : const Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
                         title: Text(product.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text("Precio: \$${product.precio.toStringAsFixed(2)} | Costo: \$${product.costo.toStringAsFixed(2)}"),
@@ -150,12 +159,21 @@ class _ProductDialogState extends State<_ProductDialog> {
       );
 
       final provider = Provider.of<ProductProvider>(context, listen: false);
-      if (widget.product == null) {
-        provider.addProduct(newProduct);
-      } else {
-        provider.updateProduct(newProduct);
+      try {
+        if (widget.product == null) {
+          provider.addProduct(newProduct);
+        } else {
+          provider.updateProduct(newProduct);
+        }
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Producto guardado correctamente")),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error al guardar: $e"), backgroundColor: Colors.red),
+        );
       }
-      Navigator.pop(context);
     }
   }
 
@@ -201,7 +219,9 @@ class _ProductDialogState extends State<_ProductDialog> {
                 child: CircleAvatar(
                   radius: 40,
                   backgroundColor: Colors.grey[200],
-                  backgroundImage: _imagePath != null ? FileImage(File(_imagePath!)) : null,
+                  backgroundImage: _imagePath != null 
+                    ? (_imagePath!.startsWith('assets/') ? AssetImage(_imagePath!) as ImageProvider : FileImage(File(_imagePath!)))
+                    : null,
                   child: _imagePath == null ? const Icon(Icons.add_a_photo, size: 30, color: Colors.grey) : null,
                 ),
               ),
