@@ -43,17 +43,6 @@ class _NuevaSalidaScreenState extends State<NuevaSalidaScreen> {
     });
   }
 
-  double _calcularTotal() {
-    double total = 0.0;
-    for (var prod in _productos) {
-      if (prod.producto != null) {
-        int totalUnidades = prod.cantidadCajas + prod.cantidadPiezas;
-        total += prod.precioVenta * totalUnidades;
-      }
-    }
-    return total;
-  }
-
   Future<void> _registrarSalida() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -69,10 +58,9 @@ class _NuevaSalidaScreenState extends State<NuevaSalidaScreen> {
     // Validar que todos los productos estén completos
     for (var prod in _productos) {
       if (prod.producto == null || 
-          (prod.cantidadCajas == 0 && prod.cantidadPiezas == 0) ||
-          prod.precioVenta <= 0) {
+          (prod.cantidadCajas == 0 && prod.cantidadPiezas == 0)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Completa todos los datos de los productos")),
+          const SnackBar(content: Text("Completa producto y cantidades")),
         );
         return;
       }
@@ -357,22 +345,7 @@ class _NuevaSalidaScreenState extends State<NuevaSalidaScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextFormField(
-                                      decoration: const InputDecoration(
-                                        labelText: "💰 Precio",
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                      ),
-                                      keyboardType: TextInputType.number,
-                                      initialValue: prod.precioVenta.toStringAsFixed(2),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          prod.precioVenta = double.tryParse(value) ?? 0.0;
-                                        });
-                                      },
-                                    ),
-                                  ),
+                                  // Precio oculto, se toma del producto
                                 ],
                               ),
                             ],
@@ -385,34 +358,8 @@ class _NuevaSalidaScreenState extends State<NuevaSalidaScreen> {
               ),
             ),
 
-            const SizedBox(height: 16),
-
-            // Total
-            Card(
-              color: Colors.blue[50],
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "TOTAL",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "\$${_calcularTotal().toStringAsFixed(2)}",
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
             const SizedBox(height: 24),
+            // Total Card Removed
 
             // Botones
             Row(

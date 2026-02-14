@@ -27,10 +27,15 @@ class _SalesScreenState extends State<SalesScreen> {
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
       // Cargar salidas y seleccionar la última activa por defecto
+      // Cargar salidas y seleccionar la PRIMERA del día (la más antigua)
       salidaProvider.loadSalidas().then((_) {
         if (mounted && salidaProvider.salidasActivas.isNotEmpty) {
+          // Ordenar cronológicamente ascendente para tomar la primera registrada
+          var salidasOrdenadas = List.of(salidaProvider.salidasActivas);
+          salidasOrdenadas.sort((a, b) => a.fechaHora.compareTo(b.fechaHora));
+          
           setState(() {
-            _selectedSalidaId = salidaProvider.salidasActivas.first.id;
+            _selectedSalidaId = salidasOrdenadas.first.id;
           });
           // Cargar productos con el stock de la ruta seleccionada
           productProvider.loadProducts(idSalida: _selectedSalidaId);
@@ -43,6 +48,51 @@ class _SalesScreenState extends State<SalesScreen> {
   }
 
   void _agregarProducto(Producto producto) {
+    // Validar Stock Detallado en Ruta (considerando lo que ya está en el carrito)
+    if (_selectedSalidaId != null) {
+      int pxc = producto.piezasPorCaja > 0 ? producto.piezasPorCaja : 12;
+      
+      // Calcular cuánto de este producto ya está en el carrito
+      final salesProvider = Provider.of<SalesProvider>(context, listen: false);
+      int cajasEnCarrito = 0;
+      int piezasEnCarrito = 0;
+      
+      for (var item in salesProvider.cart) {
+        if (item.idProducto == producto.id) {
+          if (item.unidad == 'CAJA') {
+            cajasEnCarrito += item.cantidad;
+          } else {
+            piezasEnCarrito += item.cantidad;
+          }
+        }
+      }
+      
+      // Calcular stock disponible restando lo que ya está en el carrito
+      int stockCajasDisponible = producto.stockCajas - cajasEnCarrito;
+      int stockPiezasDisponible = producto.stockPiezas - piezasEnCarrito;
+      
+      // Ajustar si las piezas en carrito superan las sueltas (se abrieron cajas)
+      while (stockPiezasDisponible < 0 && stockCajasDisponible > 0) {
+        stockCajasDisponible--;
+        stockPiezasDisponible += pxc;
+      }
+      
+      if (_unidadSeleccionada == 'CAJA') {
+        // Venta de CAJAS: Debe haber suficientes cajas cerradas
+        if (_cantidad > stockCajasDisponible) {
+          _mostrarErrorStock("Solo quedan ${stockCajasDisponible} cajas disponibles (ya tienes $cajasEnCarrito en el carrito).");
+          return;
+        }
+      } else {
+        // Venta de PIEZAS: Se pueden tomar de piezas sueltas + cajas cerradas disponibles
+        int stockTotalPiezasDisponible = stockPiezasDisponible + (stockCajasDisponible * pxc);
+        if (_cantidad > stockTotalPiezasDisponible) {
+           _mostrarErrorStock("Solo quedan $stockTotalPiezasDisponible piezas disponibles (ya tienes $piezasEnCarrito piezas en el carrito).");
+           return;
+        }
+      }
+    }
+
     try {
       Provider.of<SalesProvider>(context, listen: false).addToCart(
         producto, 
@@ -322,6 +372,81 @@ class _SalesScreenState extends State<SalesScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _mostrarErrorStock(String mensaje) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        // Auto-cerrar después de 3 segundos
+        Future.delayed(const Duration(seconds: 3), () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+        });
+        
+        return AlertDialog(
+          backgroundColor: Colors.red[50],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red[700], size: 32),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  "Stock Insuficiente",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                mensaje,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange[100],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange, width: 2),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.orange),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "No puedes vender más de lo que tienes cargado en esta ruta.",
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.check_circle),
+              label: const Text("Entendido"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
