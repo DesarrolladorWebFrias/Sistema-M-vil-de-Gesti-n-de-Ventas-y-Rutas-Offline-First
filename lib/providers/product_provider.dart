@@ -125,6 +125,7 @@ class ProductProvider with ChangeNotifier {
           // Producto no cargado en esta salida, mostrar con stock 0
           product.stockCajas = 0;
           product.stockPiezas = 0;
+          filteredProducts.add(product); // <--- LINEA AGREGADA: Ahora sí se agrega a la lista
         }
       }
     }
