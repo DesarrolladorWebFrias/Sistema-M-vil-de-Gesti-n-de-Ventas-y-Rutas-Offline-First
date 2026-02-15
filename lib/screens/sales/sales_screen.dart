@@ -603,9 +603,56 @@ class _SalesScreenState extends State<SalesScreen> {
                       Navigator.pop(context);
                       // Actualizar stock en tiempo real
                       Provider.of<ProductProvider>(context, listen: false).loadProducts(idSalida: _selectedSalidaId);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Venta Registrada Exitosamente!")));
+                      
+                      // SnackBar verde con letras blancas
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.check_circle, color: Colors.white, size: 28),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  "¡Venta Registrada Exitosamente!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          backgroundColor: Colors.green[700],
+                          duration: const Duration(seconds: 3),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.all(16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
                     } else {
-                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al registrar venta")));
+                       ScaffoldMessenger.of(context).showSnackBar(
+                         SnackBar(
+                           content: Row(
+                             children: [
+                               Icon(Icons.error, color: Colors.white, size: 28),
+                               SizedBox(width: 12),
+                               Text(
+                                 "Error al registrar venta",
+                                 style: TextStyle(
+                                   color: Colors.white,
+                                   fontSize: 16,
+                                   fontWeight: FontWeight.bold,
+                                 ),
+                               ),
+                             ],
+                           ),
+                           backgroundColor: Colors.red[700],
+                           duration: const Duration(seconds: 3),
+                         ),
+                       );
                     }
                   },
                 )

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../data/models/producto.dart';
 import '../../data/models/movimiento_inventario.dart';
+import '../../data/models/salida.dart';
 import '../../data/local/db_helper.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/salida_provider.dart';
 
 class RestockScreen extends StatefulWidget {
   const RestockScreen({super.key});
@@ -13,6 +15,7 @@ class RestockScreen extends StatefulWidget {
 }
 
 class _RestockScreenState extends State<RestockScreen> {
+  int? _selectedSalidaId; // Ruta seleccionada
   Producto? _selectedProduct;
   final _cajasController = TextEditingController(text: '0');
   final _piezasController = TextEditingController(text: '0');
@@ -24,10 +27,21 @@ class _RestockScreenState extends State<RestockScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ProductProvider>(context, listen: false).loadProducts();
+      Provider.of<SalidaProvider>(context, listen: false).loadSalidas();
     });
   }
 
   Future<void> _submitRestock() async {
+    if (_selectedSalidaId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Seleccione una ruta primero"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     if (_selectedProduct == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Seleccione un producto")));
       return;
@@ -46,38 +60,57 @@ class _RestockScreenState extends State<RestockScreen> {
     try {
       final db = await DatabaseHelper().database;
 
-      // 1. Registrar Movimiento
+      // 1. Registrar en detalle_salidas (Reabastecimiento de la ruta)
+      await db.insert('detalle_salidas', {
+        'id_salida': _selectedSalidaId,
+        'id_producto': _selectedProduct!.id,
+        'cantidad_cajas': cajas,
+        'cantidad_piezas': piezas,
+        'precio_venta': _selectedProduct!.precio, // Precio actual del producto
+      });
+
+      // 2. Registrar Movimiento en Kardex
       final movimiento = MovimientoInventario(
         fechaHora: DateTime.now(),
         tipo: 'ALTA_REABASTECIMIENTO',
         idProducto: _selectedProduct!.id!,
         cantidadCajas: cajas,
         cantidadPiezas: piezas,
-        usuario: 'ADMIN', // Podría ser dinámico si hubiera login real
-        notas: _notasController.text.isEmpty ? 'Reabastecimiento en Ruta' : _notasController.text,
+        usuario: 'ADMIN',
+        notas: _notasController.text.isEmpty 
+          ? 'Reabastecimiento en Ruta ID: $_selectedSalidaId' 
+          : _notasController.text,
       );
 
       await db.insert('movimientos_inventario', movimiento.toMap());
 
-      // 2. Actualizar Stock del Producto
-      final nuevoStockCajas = _selectedProduct!.stockCajas + cajas;
-      final nuevoStockPiezas = _selectedProduct!.stockPiezas + piezas;
-
-      await db.rawUpdate('''
-        UPDATE productos 
-        SET stock_cajas = ?, stock_piezas = ? 
-        WHERE id = ?
-      ''', [nuevoStockCajas, nuevoStockPiezas, _selectedProduct!.id]);
-
-      // 3. Recargar Productos en Provider
+      // 3. Recargar Productos en Provider con la salida seleccionada
       if (mounted) {
-        await Provider.of<ProductProvider>(context, listen: false).loadProducts();
+        await Provider.of<ProductProvider>(context, listen: false).loadProducts(idSalida: _selectedSalidaId);
       }
       
       if (!mounted) return;
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Inventario actualizado correctamente"), backgroundColor: Colors.green),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white, size: 24),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  "Reabastecimiento registrado en la ruta",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green[700],
+          duration: const Duration(seconds: 3),
+        ),
       );
       
       // Limpiar campos
@@ -96,6 +129,7 @@ class _RestockScreenState extends State<RestockScreen> {
   @override
   Widget build(BuildContext context) {
     final products = Provider.of<ProductProvider>(context).products;
+    final salidaProvider = Provider.of<SalidaProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -106,9 +140,67 @@ class _RestockScreenState extends State<RestockScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Selector de Producto
+            // 1. SELECTOR DE RUTA (PRIMERO)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue, width: 2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.blue[700]),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "Selecciona primero la ruta a reabastecer",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[900],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  DropdownButtonFormField<int>(
+                    value: _selectedSalidaId,
+                    decoration: const InputDecoration(
+                      labelText: "📍 Ruta / Salida",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.local_shipping),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    hint: const Text("Selecciona una ruta activa"),
+                    items: salidaProvider.salidasActivas.map((salida) {
+                      return DropdownMenuItem(
+                        value: salida.id,
+                        child: Text(
+                          "${salida.tipo == 'RUTA' ? '🗺️' : '📦'} ${salida.nombreRuta}",
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedSalidaId = value;
+                        _selectedProduct = null; // Reset producto al cambiar ruta
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // 2. Selector de Producto
             DropdownButtonFormField<Producto>(
-              initialValue: _selectedProduct,
+              value: _selectedProduct,
               decoration: const InputDecoration(
                 labelText: "Seleccionar Producto",
                 border: OutlineInputBorder(),
@@ -120,9 +212,11 @@ class _RestockScreenState extends State<RestockScreen> {
                   child: Text(p.nombre),
                 );
               }).toList(),
-              onChanged: (val) {
-                setState(() => _selectedProduct = val);
-              },
+              onChanged: _selectedSalidaId == null 
+                ? null // Deshabilitar si no hay ruta seleccionada
+                : (val) {
+                    setState(() => _selectedProduct = val);
+                  },
             ),
             const SizedBox(height: 20),
             
