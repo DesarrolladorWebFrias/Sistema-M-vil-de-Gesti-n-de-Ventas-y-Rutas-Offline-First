@@ -208,6 +208,24 @@ class _SalesScreenState extends State<SalesScreen> {
                     ),
                     child: Consumer<SalidaProvider>(
                       builder: (context, salidaProvider, child) {
+                        // VALIDACIÓN DE SEGURIDAD:
+                        // Verificar si la salida seleccionada sigue existiendo en la lista activa.
+                        // Si se cerró la ruta en otra pantalla, el ID quedará huérfano y causará error.
+                        bool idEsValido = _selectedSalidaId == null || 
+                            salidaProvider.salidasActivas.any((s) => s.id == _selectedSalidaId);
+
+                        // Si el ID ya no es válido (ej. ruta cerrada), lo reseteamos visualmente a null
+                        int? valorAmostrar = idEsValido ? _selectedSalidaId : null;
+                        
+                        // Si detectamos que el ID no es válido, aprovechamos para limpiar el estado
+                        if (!idEsValido && mounted) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                             setState(() {
+                               _selectedSalidaId = null;
+                             });
+                          });
+                        }
+
                         return DropdownButtonFormField<int>(
                           decoration: const InputDecoration(
                             labelText: "📍 Ruta / Salida",
@@ -215,7 +233,7 @@ class _SalesScreenState extends State<SalesScreen> {
                             contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                             prefixIcon: Icon(Icons.local_shipping, size: 20),
                           ),
-                          value: _selectedSalidaId,
+                          value: valorAmostrar,
                           hint: const Text("Selecciona una ruta"),
                           items: salidaProvider.salidasActivas.map((salida) {
                             return DropdownMenuItem(
