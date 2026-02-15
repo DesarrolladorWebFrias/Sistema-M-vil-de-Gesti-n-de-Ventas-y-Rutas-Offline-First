@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../data/local/db_helper.dart';
 import '../../data/models/producto.dart';
 
+class ProductProvider with ChangeNotifier {
   List<Producto> _products = [];
   bool _isLoading = false;
   bool _hasDataInconsistency = false; // Bandera para UI
