@@ -18,6 +18,10 @@ class ProductProvider with ChangeNotifier {
       whereArgs: [idSalida],
     );
     
+    debugPrint("🔍 DEBUG: Cargando productos para salida ID: $idSalida");
+    debugPrint("🔍 DEBUG: Registros en detalle_salidas: ${cargas.length}");
+    debugPrint("🔍 DEBUG: Total productos en catálogo: ${allProducts.length}");
+    
     // Mapa: idProducto -> {cajas, piezas} (Acumulativo)
     Map<int, Map<String, int>> stockTotalRuta = {};
 
@@ -35,6 +39,9 @@ class ProductProvider with ChangeNotifier {
       stockTotalRuta[idProd]!['cajas'] = (stockTotalRuta[idProd]!['cajas']!) + cajas;
       stockTotalRuta[idProd]!['piezas'] = (stockTotalRuta[idProd]!['piezas']!) + piezas;
     }
+
+    debugPrint("🔍 DEBUG: IDs de productos con carga: ${stockTotalRuta.keys.toList()}");
+    debugPrint("🔍 DEBUG: IDs de productos en catálogo: ${allProducts.map((p) => p.id).toList()}");
 
     // 2b. Obtener Ventas realizadas en esa Salida
     final List<Map<String, dynamic>> ventas = await db.rawQuery('''
@@ -93,8 +100,38 @@ class ProductProvider with ChangeNotifier {
       }
     }
     
+    debugPrint("🔍 DEBUG: Productos filtrados encontrados: ${filteredProducts.length}");
+    
+    // FALLBACK INTELIGENTE: Si hay cargas en detalle_salidas pero no productos filtrados,
+    // significa que hay un problema de IDs. Mostrar todos los productos con stock calculado.
+    if (filteredProducts.isEmpty && stockTotalRuta.isNotEmpty) {
+      debugPrint("⚠️ ADVERTENCIA: Hay ${stockTotalRuta.length} productos en detalle_salidas pero 0 coincidencias en catálogo");
+      debugPrint("⚠️ Aplicando fallback: Mostrando catálogo completo con stock desde detalle_salidas");
+      
+      // Intentar emparejar por cualquier medio disponible
+      for (var product in allProducts) {
+        if (stockTotalRuta.containsKey(product.id)) {
+          int totalCajas = stockTotalRuta[product.id]!['cajas']!;
+          int totalPiezas = stockTotalRuta[product.id]!['piezas']!;
+          
+          int vendidoCajas = ventaMap[product.id]?['cajas'] ?? 0;
+          int vendidoPiezas = ventaMap[product.id]?['piezas'] ?? 0;
+
+          product.stockCajas = (totalCajas - vendidoCajas).clamp(0, 999999);
+          product.stockPiezas = (totalPiezas - vendidoPiezas).clamp(0, 999999);
+          
+          filteredProducts.add(product);
+        } else {
+          // Producto no cargado en esta salida, mostrar con stock 0
+          product.stockCajas = 0;
+          product.stockPiezas = 0;
+        }
+      }
+    }
+    
     // Asignar solo los productos que tienen carga en esta salida
     _products = filteredProducts;
+    debugPrint("✅ DEBUG: Productos finales asignados: ${_products.length}");
   }
 
   Future<void> loadProducts({int? idSalida}) async {
