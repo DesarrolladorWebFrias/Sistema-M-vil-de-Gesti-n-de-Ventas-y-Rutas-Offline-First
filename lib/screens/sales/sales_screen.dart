@@ -48,9 +48,29 @@ class _SalesScreenState extends State<SalesScreen> {
   }
 
   void _agregarProducto(Producto producto) {
+      int cantidadReal = _cantidad;
+      String unidadReal = _unidadSeleccionada;
+      int pxc = producto.piezasPorCaja > 0 ? producto.piezasPorCaja : 12;
+
+      // Lógica Especial: DOTACIÓN
+      if (_unidadSeleccionada == 'DOTACIÓN') {
+        // Validar que sea Leche Subsidiada
+        bool esLecheSubsidiada = producto.nombre.toUpperCase().contains('SUBSIDIADA') || 
+                                 producto.nombre.toUpperCase().contains('POLVO');
+        
+        if (!esLecheSubsidiada) {
+          _mostrarErrorStock("Solo la Leche Subsidiada se vende por Dotación (8 pzas).");
+          return;
+        }
+
+        // Convertir Dotaciones a Piezas
+        // 1 Dotación = 8 Piezas
+        cantidadReal = _cantidad * 8;
+        unidadReal = 'PIEZA'; // Se registra como piezas para el inventario
+      }
+
     // Validar Stock Detallado en Ruta (considerando lo que ya está en el carrito)
     if (_selectedSalidaId != null) {
-      int pxc = producto.piezasPorCaja > 0 ? producto.piezasPorCaja : 12;
       
       // Calcular cuánto de este producto ya está en el carrito
       final salesProvider = Provider.of<SalesProvider>(context, listen: false);
@@ -77,17 +97,17 @@ class _SalesScreenState extends State<SalesScreen> {
         stockPiezasDisponible += pxc;
       }
       
-      if (_unidadSeleccionada == 'CAJA') {
+      if (unidadReal == 'CAJA') {
         // Venta de CAJAS: Debe haber suficientes cajas cerradas
-        if (_cantidad > stockCajasDisponible) {
+        if (cantidadReal > stockCajasDisponible) {
           _mostrarErrorStock("Solo quedan ${stockCajasDisponible} cajas disponibles (ya tienes $cajasEnCarrito en el carrito).");
           return;
         }
       } else {
-        // Venta de PIEZAS: Se pueden tomar de piezas sueltas + cajas cerradas disponibles
+        // Venta de PIEZAS (o Dotaciones convertidas): Se pueden tomar de piezas sueltas + cajas cerradas disponibles
         int stockTotalPiezasDisponible = stockPiezasDisponible + (stockCajasDisponible * pxc);
-        if (_cantidad > stockTotalPiezasDisponible) {
-           _mostrarErrorStock("Solo quedan $stockTotalPiezasDisponible piezas disponibles (ya tienes $piezasEnCarrito piezas en el carrito).");
+        if (cantidadReal > stockTotalPiezasDisponible) {
+           _mostrarErrorStock("Stock insuficiente. Necesitas $cantidadReal piezas, tienes $stockTotalPiezasDisponible.");
            return;
         }
       }
@@ -96,16 +116,20 @@ class _SalesScreenState extends State<SalesScreen> {
     try {
       Provider.of<SalesProvider>(context, listen: false).addToCart(
         producto, 
-        _cantidad, 
-        _unidadSeleccionada,
+        cantidadReal, // Cantidad convertida (si era dotación)
+        unidadReal,   // Unidad real (PIEZA o CAJA)
         // Eliminamos el hardcode de 12, ahora usa lo que tenga el producto
-        piezasPorCaja: producto.piezasPorCaja > 0 ? producto.piezasPorCaja : 12 
+        piezasPorCaja: pxc
       );
       
+      String mensajeExito = _unidadSeleccionada == 'DOTACIÓN'
+          ? "Agregado: $_cantidad Dotaciones ($cantidadReal Piezas)"
+          : "Agregado: ${producto.nombre}";
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Agregado: ${producto.nombre}"),
-          duration: const Duration(milliseconds: 500),
+          content: Text(mensajeExito),
+          duration: const Duration(seconds: 1), // Un poco más largo para leer la conversión
         )
       );
     } catch (e) {
@@ -264,18 +288,22 @@ class _SalesScreenState extends State<SalesScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ToggleButtons(
-                          isSelected: [_unidadSeleccionada == 'PIEZA', _unidadSeleccionada == 'CAJA'],
+                          isSelected: [_unidadSeleccionada == 'PIEZA', _unidadSeleccionada == 'DOTACIÓN', _unidadSeleccionada == 'CAJA'],
                           onPressed: (int index) {
                             setState(() {
-                              _unidadSeleccionada = index == 0 ? 'PIEZA' : 'CAJA';
+                              if (index == 0) _unidadSeleccionada = 'PIEZA';
+                              else if (index == 1) _unidadSeleccionada = 'DOTACIÓN';
+                              else _unidadSeleccionada = 'CAJA';
                             });
                           },
                           borderRadius: BorderRadius.circular(10),
                           selectedColor: Colors.white,
-                          fillColor: Colors.blue[800],
+                          fillColor: _unidadSeleccionada == 'DOTACIÓN' ? Colors.purple[700] : Colors.blue[800], // Color especial para Dotación
+                          constraints: const BoxConstraints(minHeight: 40, minWidth: 80), // Asegurar tamaño táctil
                           children: const [
-                            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("PIEZA")),
-                            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("CAJA")),
+                            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("PIEZA")),
+                            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("DOTACIÓN (8)")),
+                            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("CAJA")),
                           ],
                         ),
                         const SizedBox(width: 20),
