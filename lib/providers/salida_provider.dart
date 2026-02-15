@@ -204,9 +204,22 @@ class SalidaProvider with ChangeNotifier {
       }
     }
 
+    // Calcular total vendido en dinero (Suma de los totales de los tickets)
+    final resultTotal = await db.rawQuery('''
+      SELECT SUM(total) as total
+      FROM ventas
+      WHERE id_salida = ?
+    ''', [idSalida]);
+    
+    double totalVendido = 0.0;
+    if (resultTotal.isNotEmpty && resultTotal.first['total'] != null) {
+      totalVendido = double.tryParse(resultTotal.first['total'].toString()) ?? 0.0;
+    }
+
     return {
       'id_salida': idSalida,
       'devolucion': devolucion,
+      'total_vendido': totalVendido,
     };
   }
 }

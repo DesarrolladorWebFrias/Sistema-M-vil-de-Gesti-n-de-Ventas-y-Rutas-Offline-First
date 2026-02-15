@@ -47,6 +47,13 @@ class _CloseRouteScreenState extends State<CloseRouteScreen> {
       // o podemos hacer una consulta extra aquí.
       setState(() {
         _devolucionData = data;
+        
+        // Asignar Total Vendido al campo de texto automáticamente
+        if (data.containsKey('total_vendido')) {
+           _efectivoController.text = (data['total_vendido'] as double).toStringAsFixed(2);
+        } else {
+           _efectivoController.text = '0.00';
+        }
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error calculando devolución: $e")));
@@ -202,6 +209,8 @@ class _CloseRouteScreenState extends State<CloseRouteScreen> {
             labelText: "Total Efectivo Recaudado",
             prefixIcon: Icon(Icons.attach_money),
             border: OutlineInputBorder(),
+            helperText: "Total calculado según ventas registradas: \$${_devolucionData?['total_vendido']?.toStringAsFixed(2) ?? '0.00'}",
+            helperStyle: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(height: 10),
