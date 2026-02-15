@@ -332,9 +332,16 @@ class _SalesScreenState extends State<SalesScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 ElevatedButton.icon(
-                                  onPressed: () => Navigator.pushNamed(context, '/admin_restock'),
-                                  icon: const Icon(Icons.refresh),
-                                  label: const Text("Ir a Reabastecimiento"),
+                                  onPressed: () {
+                                    // Ir al Login Admin y luego redirigir a Restock
+                                    Navigator.pushNamed(
+                                      context, 
+                                      '/admin_login',
+                                      arguments: {'redirect': '/admin_restock'}
+                                    );
+                                  },
+                                  icon: const Icon(Icons.lock_outline),
+                                  label: const Text("Ir a Reabastecimiento (Admin)"),
                                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                                 )
                               ],

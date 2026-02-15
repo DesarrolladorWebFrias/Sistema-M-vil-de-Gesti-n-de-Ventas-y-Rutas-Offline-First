@@ -15,10 +15,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   void _login() {
     // Contraseña Maestra definida en requerimientos
     const String masterPassword = "Lu15Fr1@52026"; 
+    // Obtener argumentos de navegación (si existen)
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (_passwordController.text == masterPassword) {
-      // Navegar al Panel de Administración y eliminar historial de navegación para evitar volver al login con "Atrás"
-      Navigator.pushReplacementNamed(context, '/admin_home');
+      if (args != null && args.containsKey('redirect')) {
+        // Redirigir a la ruta solicitada
+        Navigator.pushReplacementNamed(context, args['redirect']);
+      } else {
+        // Navegar al Panel de Administración por defecto
+        Navigator.pushReplacementNamed(context, '/admin_home');
+      }
     } else {
       setState(() {
         _errorMessage = "Contraseña incorrecta";
