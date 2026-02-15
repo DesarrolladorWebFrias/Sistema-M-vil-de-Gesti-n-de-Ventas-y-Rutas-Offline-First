@@ -232,8 +232,8 @@ class DatabaseHelper {
       },
       {
         'nombre': 'LECHITA DE CHOCOLATE',
-        'precio': 7.00,
-        'costo': 6.50,
+        'precio': 10.00,
+        'costo': 10.00,
         'stock_cajas': 0,
         'stock_piezas': 0,
         'piezas_por_caja': 27,

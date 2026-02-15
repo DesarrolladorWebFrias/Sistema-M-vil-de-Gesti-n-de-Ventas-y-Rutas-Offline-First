@@ -151,28 +151,55 @@ class SalidaProvider with ChangeNotifier {
 
     // Calcular devolución
     List<Map<String, dynamic>> devolucion = [];
+    
     for (var detalle in detalles) {
-      int cajasVendidas = vendidos[detalle.idProducto]?['cajas'] ?? 0;
-      int piezasVendidas = vendidos[detalle.idProducto]?['piezas'] ?? 0;
+      // Obtener datos del producto (Nombre y PiezasPorCaja)
+      final List<Map<String, dynamic>> productRes = await db.query(
+        'productos',
+        columns: ['nombre', 'piezas_por_caja'],
+        where: 'id = ?',
+        whereArgs: [detalle.idProducto], // Corrección aquí: usar el ID del detalle
+      );
 
-      int cajasDevueltas = detalle.cantidadCajas - cajasVendidas;
-      int piezasDevueltas = detalle.cantidadPiezas - piezasVendidas;
+      String nombreProducto;
+      int pxc;
 
-      if (cajasDevueltas > 0 || piezasDevueltas > 0) {
-        // Obtener nombre del producto
-        final List<Map<String, dynamic>> productRes = await db.query(
-          'productos',
-          columns: ['nombre'],
-          where: 'id = ?',
-          whereArgs: [detalle.idProducto],
-        );
-        String nombreProducto = productRes.isNotEmpty ? productRes.first['nombre'] as String : 'Producto #${detalle.idProducto}';
+      if (productRes.isNotEmpty) {
+        nombreProducto = productRes.first['nombre'] as String;
+        pxc = int.tryParse(productRes.first['piezas_por_caja'].toString()) ?? 12; // Default 12 si falla
+      } else {
+        nombreProducto = 'Producto #${detalle.idProducto} (No encontrado)';
+        pxc = 12; // Fallback estandár si el producto fue borrado
+      }
 
+      // Calcular Devolución (Manejo de Cajas Abiertas)
+      int cajasVendidas = vendidos[detalle.idProducto]?['cajas'] ?? 0; // Corrección aquí
+      int piezasVendidas = vendidos[detalle.idProducto]?['piezas'] ?? 0; // Corrección aquí
+      
+      // Stock Inicial
+      int stockCajas = detalle.cantidadCajas;
+      int stockPiezas = detalle.cantidadPiezas;
+
+      // Restar ventas
+      int remanenteCajas = stockCajas - cajasVendidas;
+      int remanentePiezas = stockPiezas - piezasVendidas;
+
+      // Ajustar si se vendieron más piezas de las sueltas (se rompieron cajas)
+      while (remanentePiezas < 0 && remanenteCajas > 0) {
+        remanenteCajas--;
+        remanentePiezas += pxc;
+      }
+      
+      // Si aún así es negativo (se vendió más de lo que había), se deja en 0
+      if (remanenteCajas < 0) remanenteCajas = 0;
+      if (remanentePiezas < 0) remanentePiezas = 0;
+
+      if (remanenteCajas > 0 || remanentePiezas > 0) {
         devolucion.add({
-          'id_producto': detalle.idProducto,
-          'nombre_producto': nombreProducto, // Added Name
-          'cajas_devueltas': cajasDevueltas,
-          'piezas_devueltas': piezasDevueltas,
+          'id_producto': detalle.idProducto, // Corrección aquí
+          'nombre_producto': nombreProducto,
+          'cajas_devueltas': remanenteCajas,
+          'piezas_devueltas': remanentePiezas,
         });
       }
     }
