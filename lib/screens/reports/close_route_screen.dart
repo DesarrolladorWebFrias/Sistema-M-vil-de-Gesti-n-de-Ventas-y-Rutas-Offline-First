@@ -205,10 +205,10 @@ class _CloseRouteScreenState extends State<CloseRouteScreen> {
         TextField(
           controller: _efectivoController,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: "Total Efectivo Recaudado",
-            prefixIcon: Icon(Icons.attach_money),
-            border: OutlineInputBorder(),
+            prefixIcon: const Icon(Icons.attach_money),
+            border: const OutlineInputBorder(),
             helperText: "Total calculado según ventas registradas: \$${_devolucionData?['total_vendido']?.toStringAsFixed(2) ?? '0.00'}",
             helperStyle: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
           ),
