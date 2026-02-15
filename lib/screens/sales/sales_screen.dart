@@ -216,22 +216,16 @@ class _SalesScreenState extends State<SalesScreen> {
                             prefixIcon: Icon(Icons.local_shipping, size: 20),
                           ),
                           value: _selectedSalidaId,
-                          hint: const Text("Venta General (Stock Almacén)"),
-                          items: [
-                            const DropdownMenuItem<int>(
-                              value: null,
-                              child: Text("🏭 Almacén General"),
-                            ),
-                            ...salidaProvider.salidasActivas.map((salida) {
-                              return DropdownMenuItem(
-                                value: salida.id,
-                                child: Text(
-                                  "${salida.tipo == 'RUTA' ? '🗺️' : '📦'} ${salida.nombreRuta}",
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              );
-                            }),
-                          ],
+                          hint: const Text("Selecciona una ruta"),
+                          items: salidaProvider.salidasActivas.map((salida) {
+                            return DropdownMenuItem(
+                              value: salida.id,
+                              child: Text(
+                                "${salida.tipo == 'RUTA' ? '🗺️' : '📦'} ${salida.nombreRuta}",
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          }).toList(),
                           onChanged: (value) {
                              setState(() {
                                _selectedSalidaId = value;
@@ -293,10 +287,49 @@ class _SalesScreenState extends State<SalesScreen> {
                     height: 300, // Altura restaurada
                     child: productProvider.isLoading 
                       ? const Center(child: CircularProgressIndicator())
-                      : ProductCarousel(
-                          products: productProvider.products,
-                          onProductSelected: (producto) => _agregarProducto(producto),
-                        ),
+                      : productProvider.products.isEmpty
+                        ? Container(
+                            padding: const EdgeInsets.all(24),
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.orange[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.orange, width: 2),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.inventory_2_outlined, size: 64, color: Colors.orange[700]),
+                                const SizedBox(height: 16),
+                                Text(
+                                  _selectedSalidaId != null 
+                                    ? "No hay productos cargados en esta ruta"
+                                    : "Selecciona una ruta para comenzar",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  _selectedSalidaId != null
+                                    ? "Ve a 'Salidas / Rutas' para registrar productos en esta salida"
+                                    : "Solo se mostrarán los productos que hayas cargado",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[700],
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          )
+                        : ProductCarousel(
+                            products: productProvider.products,
+                            onProductSelected: (producto) => _agregarProducto(producto),
+                          ),
                   ),
 
                   const Divider(thickness: 2),

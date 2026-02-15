@@ -67,6 +67,7 @@ class ProductProvider with ChangeNotifier {
     List<Producto> filteredProducts = [];
     
     // 3. Filtrar y Calcular Stock Restante
+    // SOLO se mostrarán los productos que fueron cargados en esta salida
     for (var product in allProducts) {
       if (stockTotalRuta.containsKey(product.id)) {
         int totalCajas = stockTotalRuta[product.id]!['cajas']!;
@@ -92,19 +93,8 @@ class ProductProvider with ChangeNotifier {
       }
     }
     
-    // FALLBACK: Si la lista filtrada queda vacía (pero hay salida seleccionada),
-    // puede ser porque es una salida antigua con IDs viejos. 
-    // Para no mostrar pantalla blanca, devolvemos todo con stock 0 y aviso.
-    if (filteredProducts.isEmpty) {
-       _products = allProducts.map((p) {
-         p.stockCajas = 0;
-         p.stockPiezas = 0;
-         // Opcional: p.nombre += " (Sin Carga)"; 
-         return p;
-       }).toList();
-    } else {
-       _products = filteredProducts;
-    }
+    // Asignar solo los productos que tienen carga en esta salida
+    _products = filteredProducts;
   }
 
   Future<void> loadProducts({int? idSalida}) async {

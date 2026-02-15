@@ -23,6 +23,15 @@ class _NuevaSalidaScreenState extends State<NuevaSalidaScreen> {
   List<_ProductoSalida> _productos = [];
 
   @override
+  void initState() {
+    super.initState();
+    // Cargar todos los productos del catálogo para poder seleccionarlos
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProductProvider>(context, listen: false).loadProducts();
+    });
+  }
+
+  @override
   void dispose() {
     _nombreRutaController.dispose();
     _nombreClienteController.dispose();
