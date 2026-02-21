@@ -1,9 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/admin_login.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/admin_home.dart';
+import 'package:provider/provider.dart';
+import 'package:calculadora_ventas_leche_v2/providers/product_provider.dart';
+import 'package:calculadora_ventas_leche_v2/providers/sales_provider.dart';
+import 'package:calculadora_ventas_leche_v2/providers/salida_provider.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/product_management.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/restock_screen.dart';
+import 'package:calculadora_ventas_leche_v2/screens/sales/sales_screen.dart';
+import 'package:calculadora_ventas_leche_v2/screens/reports/close_day_screen.dart';
+import 'package:calculadora_ventas_leche_v2/screens/admin/backup_screen.dart'; // Added
+import 'package:calculadora_ventas_leche_v2/screens/salidas/salidas_screen.dart';
+import 'package:calculadora_ventas_leche_v2/screens/salidas/nueva_salida_screen.dart';
+import 'package:calculadora_ventas_leche_v2/screens/reports/close_route_screen.dart';
 
 const kBlue = Color(0xFF1565C0); // Azul principal
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => SalesProvider()),
+        ChangeNotifierProvider(create: (_) => SalidaProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -18,6 +41,19 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Roboto',
       ),
       home: const SplashScreen(),
+      routes: {
+        '/sales': (context) => const SalesScreen(),
+        '/admin_login': (context) => const AdminLoginScreen(),
+        '/admin_home': (context) => const AdminHomeScreen(),
+        '/admin_products': (context) => const ProductManagementScreen(),
+        '/admin_restock': (context) => const RestockScreen(),
+        '/admin_reports': (context) => const CloseDayScreen(),
+        '/salidas': (context) => const SalidasScreen(),
+        '/nueva_salida': (context) => const NuevaSalidaScreen(),
+        '/cierre_ruta': (context) => const CloseRouteScreen(),
+        '/cierre_caja': (context) => const CloseDayScreen(), // Added
+        '/backup': (context) => const BackupScreen(), // Added
+      },
     );
   }
 }
@@ -38,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const SalesCalculator()),
+          MaterialPageRoute(builder: (context) => const SalesScreen()),
         );
       }
     });
@@ -332,7 +368,7 @@ class _SalesCalculatorState extends State<SalesCalculator> {
                   boxShadow: seleccionado
                       ? [
                           BoxShadow(
-                              color: kBlue.withOpacity(0.4),
+                              color: kBlue.withValues(alpha: 0.4),
                               offset: const Offset(3, 3),
                               blurRadius: 10)
                         ]
@@ -385,7 +421,7 @@ class _SalesCalculatorState extends State<SalesCalculator> {
             boxShadow: seleccionado
                 ? [
                     BoxShadow(
-                        color: kBlue.withOpacity(0.3),
+                        color: kBlue.withValues(alpha: 0.3),
                         offset: const Offset(3, 3),
                         blurRadius: 6)
                   ]
@@ -435,6 +471,13 @@ class _SalesCalculatorState extends State<SalesCalculator> {
             icon: const Icon(Icons.delete_sweep, color: Colors.white),
             onPressed: _vaciarRegistros,
             tooltip: "Vaciar todos los registros",
+          ),
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
+            onPressed: () {
+              Navigator.pushNamed(context, '/admin_login');
+            },
+            tooltip: "Administración",
           ),
         ],
       ),
@@ -515,14 +558,14 @@ class _SalesCalculatorState extends State<SalesCalculator> {
                 ChoiceChip(
                   label: const Text("Pieza"),
                   selected: tipoVenta == "Pieza",
-                  selectedColor: kBlue.withOpacity(0.2),
+                  selectedColor: kBlue.withValues(alpha: 0.2),
                   onSelected: (_) => setState(() => tipoVenta = "Pieza"),
                 ),
                 const SizedBox(width: 12),
                 ChoiceChip(
                   label: const Text("Caja"),
                   selected: tipoVenta == "Caja",
-                  selectedColor: kBlue.withOpacity(0.2),
+                  selectedColor: kBlue.withValues(alpha: 0.2),
                   onSelected: (_) => setState(() => tipoVenta = "Caja"),
                 ),
               ],

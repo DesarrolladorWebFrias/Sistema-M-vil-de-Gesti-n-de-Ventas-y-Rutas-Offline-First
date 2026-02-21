@@ -1,0 +1,130 @@
+LOG DIAGNÓSTICO TOTAL - 2026-02-12 23:23:26.993875
+-- PRODUCTOS (TODOS) --
+ID: 85 | Nombre: LECHE SUBSIDIADA | Imagen: C:\Users\lalopezf\Downloads\leche-liconsa-precios-sader (1).webp
+ID: 86 | Nombre: ENTERA 1L | Imagen: null
+ID: 87 | Nombre: SEMIDES 1L | Imagen: null
+ID: 88 | Nombre: DESLACT 1L | Imagen: null
+ID: 89 | Nombre: LIGHT 1L | Imagen: null
+ID: 90 | Nombre: FRESA 250ml | Imagen: null
+ID: 91 | Nombre: VAINILLA 250ml | Imagen: null
+ID: 92 | Nombre: CHOCOLATE 250ml | Imagen: null
+ID: 102 | Nombre: LIGHT 250ml | Imagen: null
+ID: 103 | Nombre: SEMIDES POLVO | Imagen: null
+ID: 104 | Nombre: ENTERA POLVO | Imagen: null
+-- ARCHIVOS EN DESCARGAS --
+C:/Users/lalopezf/Downloads\1.jpg
+C:/Users/lalopezf/Downloads\1.png
+C:/Users/lalopezf/Downloads\10.jpg
+C:/Users/lalopezf/Downloads\10462330.png
+C:/Users/lalopezf/Downloads\1760811603536.jpg
+C:/Users/lalopezf/Downloads\2-removebg-preview.png
+C:/Users/lalopezf/Downloads\2.jpg
+C:/Users/lalopezf/Downloads\2.png
+C:/Users/lalopezf/Downloads\2023-03-16 (1).jpg
+C:/Users/lalopezf/Downloads\2023-03-16 (2).jpg
+C:/Users/lalopezf/Downloads\2023-03-16 (3).jpg
+C:/Users/lalopezf/Downloads\2023-03-16 (4).jpg
+C:/Users/lalopezf/Downloads\2023-03-16.jpg
+C:/Users/lalopezf/Downloads\3.jpg
+C:/Users/lalopezf/Downloads\4.jpg
+C:/Users/lalopezf/Downloads\5.jpg
+C:/Users/lalopezf/Downloads\6.jpg
+C:/Users/lalopezf/Downloads\7.jpg
+C:/Users/lalopezf/Downloads\8.jpg
+C:/Users/lalopezf/Downloads\9.jpg
+C:/Users/lalopezf/Downloads\ACTUALIDAD.png
+C:/Users/lalopezf/Downloads\as.png
+C:/Users/lalopezf/Downloads\AZUL (1).png
+C:/Users/lalopezf/Downloads\AZUL NAVIDAD.png
+C:/Users/lalopezf/Downloads\AZUL-NAVIDAD.png
+C:/Users/lalopezf/Downloads\AZUL.png
+C:/Users/lalopezf/Downloads\banner.png
+C:/Users/lalopezf/Downloads\base.png
+C:/Users/lalopezf/Downloads\beneficios.png
+C:/Users/lalopezf/Downloads\CONOCIMIENTO.png
+C:/Users/lalopezf/Downloads\discoteca-futurista-con-escenario-de-rendimiento-de-equipos-de-tecnologia-iluminada-generado-por-ia.jpg
+C:/Users/lalopezf/Downloads\Diseño sin título.png
+C:/Users/lalopezf/Downloads\entera.png
+C:/Users/lalopezf/Downloads\errorr.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_1ibmkt1ibmkt1ibm.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_3a3pl73a3pl73a3p.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_4lv1hk4lv1hk4lv1.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_4r1dqn4r1dqn4r1d.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_626l4r626l4r626l.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_69cu9b69cu9b69cu.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_73zliu73zliu73zl.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_8v5hx38v5hx38v5h.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_avehl0avehl0aveh.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_b8atxgb8atxgb8at.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_dd2t3cdd2t3cdd2t.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_epbbfkepbbfkepbb.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_fgcoxtfgcoxtfgco.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_g6d67gg6d67gg6d6.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_goqbxugoqbxugoqb.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_hjngtthjngtthjng.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_ib2pvhib2pvhib2p.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_j9ldhnj9ldhnj9ld (1).png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_j9ldhnj9ldhnj9ld.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_m0vot6m0vot6m0vo.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_mv884qmv884qmv88.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_vlzk8xvlzk8xvlzk.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_wgy0e3wgy0e3wgy0.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_xm3q3axm3q3axm3q.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_xy9cb6xy9cb6xy9c.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_y1n6w7y1n6w7y1n6.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_ymkpxlymkpxlymkp.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_z0h256z0h256z0h2.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_zcxm5izcxm5izcxm.png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_zelu3vzelu3vzelu (1).png
+C:/Users/lalopezf/Downloads\Gemini_Generated_Image_zelu3vzelu3vzelu.png
+C:/Users/lalopezf/Downloads\Gen4Turbo quiero que se mueva al frente diciendo la frase ¡Hola a todos y bienvenidos a mi 372290524.png
+C:/Users/lalopezf/Downloads\github.png
+C:/Users/lalopezf/Downloads\ideogram-v3.0_A_clean_modern_home_office_studio_background_designed_for_a_software_architect._-0.jpg
+C:/Users/lalopezf/Downloads\ideogram-v3.0_A_moody_dark_developer_workspace_at_night._The_background_features_an_ultrawide_-0.jpg
+C:/Users/lalopezf/Downloads\leche-liconsa-precios-sader (1).webp
+C:/Users/lalopezf/Downloads\leche-liconsa-precios-sader.webp
+C:/Users/lalopezf/Downloads\LECHITA NATURAL.jpg
+C:/Users/lalopezf/Downloads\Leonardo_Diffusion_XL_Luces_centelleantes_adornan_casas_risas_0.jpg
+C:/Users/lalopezf/Downloads\lucid-origin_A_modern_tech_workspace_loft_with_exposed_brick_walls_and_concrete_elements._A_l-0.jpg
+C:/Users/lalopezf/Downloads\lucid-origin_diseño_en_interior_hermoso_de_una_casa_americcana_para_un_fondo_que_se_vea_muy_-0 (1).jpg
+C:/Users/lalopezf/Downloads\lucid-origin_diseño_en_interior_hermoso_de_una_casa_americcana_para_un_fondo_que_se_vea_muy_-0.jpg
+C:/Users/lalopezf/Downloads\lucid-origin_Futuristic_tech_background_room._A_desk_setup_with_glowing_screens_showing_wiref-0.jpg
+C:/Users/lalopezf/Downloads\lucid-origin_nside_a_futuristic_data_center_aisle._Tall_server_racks_with_pulsing_emerald_gre-0.jpg
+C:/Users/lalopezf/Downloads\lucid-origin_quiero_set_que_tengan_profundidad_en_una_casa_lujosa_que_sea_americana_actual_qu-0.jpg
+C:/Users/lalopezf/Downloads\lucid-origin_quiero_un_un_espacio_de_trabajo_hermoso_donde_tenga_cuadros_minimalistas_para_un-0.jpg
+C:/Users/lalopezf/Downloads\Lucid_Origin_desing_a_beatifully_looking_wall_for_a_youtube_vi_1.jpg
+C:/Users/lalopezf/Downloads\Lucid_Origin_desing_a_beatifully_looking_wall_for_a_youtube_vi_2.jpg
+C:/Users/lalopezf/Downloads\Lucid_Origin_desing_a_beatifully_looking_wall_for_a_youtube_vi_3.jpg
+C:/Users/lalopezf/Downloads\macro.png
+C:/Users/lalopezf/Downloads\MINIATURA PARA VENDER EN YOUTUBE.png
+C:/Users/lalopezf/Downloads\MINIATURA PARA YOUTUBE.png
+C:/Users/lalopezf/Downloads\pedidos manuales y automatizacion.png
+C:/Users/lalopezf/Downloads\perf.png
+C:/Users/lalopezf/Downloads\PERFIL.png
+C:/Users/lalopezf/Downloads\PERFILcopia.png
+C:/Users/lalopezf/Downloads\plantilla1.png
+C:/Users/lalopezf/Downloads\PLAYERA AZUL.png
+C:/Users/lalopezf/Downloads\playera blanca.png
+C:/Users/lalopezf/Downloads\Post de Instagram Canasta de Huevos AA Sencillo Naranja .png
+C:/Users/lalopezf/Downloads\PRIMERA IMAGEN.png
+C:/Users/lalopezf/Downloads\producto.png
+C:/Users/lalopezf/Downloads\SEMIDESCREMADA LIQUIDA.jpg
+C:/Users/lalopezf/Downloads\TABLA DE USUARIOS.png
+C:/Users/lalopezf/Downloads\TABLA DETALLE VENTAS.png
+C:/Users/lalopezf/Downloads\tegnologias usadas.png
+C:/Users/lalopezf/Downloads\TERCERA IMAN.png
+C:/Users/lalopezf/Downloads\testimonios.png
+C:/Users/lalopezf/Downloads\tranferencia.png
+C:/Users/lalopezf/Downloads\unnamed.jpg
+C:/Users/lalopezf/Downloads\Untitled design (1).jpg
+C:/Users/lalopezf/Downloads\Untitled design.jpg
+C:/Users/lalopezf/Downloads\Untitled design.png
+C:/Users/lalopezf/Downloads\vista-lateral-de-un-microfono-de-radio-con-espacio-de-copia.jpg
+C:/Users/lalopezf/Downloads\whasapp.png
+C:/Users/lalopezf/Downloads\wp11382760-filament-game-wallpapers.jpg
+C:/Users/lalopezf/Downloads\wp6734577-visual-studio-wallpapers.png
+C:/Users/lalopezf/Downloads\wp6878772-laravel-wallpapers.png
+C:/Users/lalopezf/Downloads\wp7551857-mysql-wallpapers.jpg
+C:/Users/lalopezf/Downloads\wp7551877-mysql-wallpapers.jpg
+C:/Users/lalopezf/Downloads\—Pngtree—envelope icon mail message email_21267247.png
+C:/Users/lalopezf/Downloads\—Pngtree—telephone glyph icon vector_5199512.png

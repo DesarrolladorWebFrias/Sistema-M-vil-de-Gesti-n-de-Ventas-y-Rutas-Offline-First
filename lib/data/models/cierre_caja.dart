@@ -36,14 +36,14 @@ class CierreCaja {
 
   factory CierreCaja.fromMap(Map<String, dynamic> map) {
     return CierreCaja(
-      id: map['id'],
-      fechaHora: DateTime.parse(map['fecha_hora']),
-      fondoCajaInicial: map['fondo_caja_inicial'],
-      ventasSistema: map['ventas_sistema'],
-      dineroContado: map['dinero_contado'],
-      diferencia: map['diferencia'],
-      gananciaRealDia: map['ganancia_real_dia'],
-      detallesBilletes: Map<String, int>.from(jsonDecode(map['detalles_billetes'])),
+      id: map['id'] as int?,
+      fechaHora: DateTime.parse(map['fecha_hora'] as String),
+      fondoCajaInicial: (map['fondo_caja_inicial'] as num).toDouble(),
+      ventasSistema: (map['ventas_sistema'] as num).toDouble(),
+      dineroContado: (map['dinero_contado'] as num).toDouble(),
+      diferencia: (map['diferencia'] as num).toDouble(),
+      gananciaRealDia: (map['ganancia_real_dia'] as num).toDouble(),
+      detallesBilletes: Map<String, int>.from(jsonDecode(map['detalles_billetes'] as String)),
     );
   }
 }
