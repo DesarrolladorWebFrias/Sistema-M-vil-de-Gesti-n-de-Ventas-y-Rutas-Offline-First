@@ -28,22 +28,30 @@ class _SalesScreenState extends State<SalesScreen> {
 
       // Cargar salidas y seleccionar la última activa por defecto
       // Cargar salidas y seleccionar la PRIMERA del día (la más antigua)
+      // Cargar salidas y productos con robustez
       salidaProvider.loadSalidas().then((_) {
-        if (mounted && salidaProvider.salidasActivas.isNotEmpty) {
-          // Ordenar cronológicamente ascendente para tomar la primera registrada
-          var salidasOrdenadas = List.of(salidaProvider.salidasActivas);
-          salidasOrdenadas.sort((a, b) => a.fechaHora.compareTo(b.fechaHora));
-          
-          setState(() {
-            _selectedSalidaId = salidasOrdenadas.first.id;
-          });
-          // Cargar productos con el stock de la ruta seleccionada
-          productProvider.loadProducts(idSalida: _selectedSalidaId);
-        } else {
-          // Si no hay salidas activas, cargar el almacén general
-          productProvider.loadProducts();
+        if (mounted) {
+          if (salidaProvider.salidasActivas.isNotEmpty) {
+            // Ordenar cronológicamente ascendente
+            var salidasOrdenadas = List.of(salidaProvider.salidasActivas);
+            salidasOrdenadas.sort((a, b) => a.fechaHora.compareTo(b.fechaHora));
+            
+            setState(() {
+              _selectedSalidaId = salidasOrdenadas.first.id;
+            });
+            // Cargar productos de la ruta
+            productProvider.loadProducts(idSalida: _selectedSalidaId);
+          } else {
+            // Sin salidas activas -> Cargar catálogo general
+            productProvider.loadProducts();
+          }
         }
+      }).catchError((e) {
+        // Si falla la carga de salidas, al menos cargar el catálogo general
+        debugPrint("Error loading salidas: $e");
+        if (mounted) productProvider.loadProducts();
       });
+    });
     });
   }
 
@@ -254,8 +262,8 @@ class _SalesScreenState extends State<SalesScreen> {
                           decoration: const InputDecoration(
                             labelText: "📍 Ruta / Salida",
                             border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                            prefixIcon: Icon(Icons.local_shipping, size: 20),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 16), // Mayor altura para móvil
+                            prefixIcon: Icon(Icons.local_shipping, size: 24),
                           ),
                           value: valorAmostrar,
                           hint: const Text("Selecciona una ruta"),
@@ -299,7 +307,7 @@ class _SalesScreenState extends State<SalesScreen> {
                           borderRadius: BorderRadius.circular(10),
                           selectedColor: Colors.white,
                           fillColor: _unidadSeleccionada == 'DOTACIÓN' ? Colors.purple[700] : Colors.blue[800], // Color especial para Dotación
-                          constraints: const BoxConstraints(minHeight: 40, minWidth: 80), // Asegurar tamaño táctil
+                          constraints: const BoxConstraints(minHeight: 48, minWidth: 80), // Altura móvil estándar (48px)
                           children: const [
                             Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("PIEZA")),
                             Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("DOTACIÓN (8)")),

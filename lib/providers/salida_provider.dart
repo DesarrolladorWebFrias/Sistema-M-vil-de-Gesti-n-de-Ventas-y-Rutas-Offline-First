@@ -14,24 +14,28 @@ class SalidaProvider with ChangeNotifier {
 
   // Cargar todas las salidas
   Future<void> loadSalidas() async {
-    _isLoading = true;
-    notifyListeners();
+    try {
+      _isLoading = true;
+      notifyListeners();
 
-    final db = await DatabaseHelper().database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'salidas',
-      orderBy: 'fecha_hora DESC',
-    );
+      final db = await DatabaseHelper().database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'salidas',
+        orderBy: 'fecha_hora DESC',
+      );
 
-    _salidas = List.generate(maps.length, (i) {
-      return Salida.fromMap(maps[i]);
-    });
+      _salidas = List.generate(maps.length, (i) {
+        return Salida.fromMap(maps[i]);
+      });
 
-    // Filtrar salidas activas (no cerradas)
-    _salidasActivas = _salidas.where((s) => !s.cerrada).toList();
-
-    _isLoading = false;
-    notifyListeners();
+      // Filtrar salidas activas (no cerradas)
+      _salidasActivas = _salidas.where((s) => !s.cerrada).toList();
+    } catch (e) {
+      debugPrint("Error cargando salidas: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   // Obtener detalles de una salida
